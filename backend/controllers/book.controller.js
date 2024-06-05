@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const Book = require("../models/book.model");
 const { formatBook } = require("../util/book.util");
 
@@ -31,8 +32,9 @@ const getAllBooks = async (req, res) => {
 
 const getBookById = async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id);
-    console.log(req.params.id);
+    const bookId = new mongoose.Types.ObjectId(req.params.id);
+
+    const book = await Book.findById(bookId);
 
     if (!book)
       return res

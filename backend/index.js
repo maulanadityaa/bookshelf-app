@@ -1,11 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bookRoute = require("./routes/book.route");
+const connectDb = require("./config/database");
 
 require("dotenv").config();
 
 const app = express();
-
+connectDb();
 const PORT = process.env.PORT;
 
 app.use(express.json());
@@ -20,10 +21,3 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/books", bookRoute);
-
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => console.log("Error connecting to MongoDB", err));
