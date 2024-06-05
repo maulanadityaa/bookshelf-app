@@ -6,10 +6,13 @@ const {
   updateBookById,
   deleteBookById,
 } = require("../controllers/book.controller");
+const { storage } = require("../storage/storage");
+const multer = require("multer");
+const upload = multer({ storage });
 
 const router = express.Router();
 
-router.get("/", getAllBooks);
+router.get("/", upload.single("image"), getAllBooks);
 router.get("/:id", getBookById);
 router.post("/", createBook);
 router.put("/:id", updateBookById);

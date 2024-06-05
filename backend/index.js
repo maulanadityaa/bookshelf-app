@@ -1,6 +1,6 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const bookRoute = require("./routes/book.route");
+const imageRoute = require("./routes/image.route");
 const connectDb = require("./config/database");
 
 require("dotenv").config();
@@ -10,7 +10,8 @@ connectDb();
 const PORT = process.env.PORT;
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
+// app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
@@ -21,3 +22,5 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/books", bookRoute);
+
+app.use("/api/v1/upload-cover", imageRoute);

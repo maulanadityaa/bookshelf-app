@@ -5,6 +5,11 @@ const { formatBook } = require("../util/book.util");
 const createBook = async (req, res) => {
   try {
     const book = new Book(req.body);
+
+    if (req.body.imageUrl != undefined) {
+      book.imageUrl = req.body.imageUrl;
+    }
+
     await book.save();
 
     res.status(201).json({
