@@ -1,29 +1,26 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { Heading } from "@chakra-ui/react";
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
   Badge,
   Button,
+  Table,
+  TableContainer,
   Tag,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
   useToast,
 } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteBookAction,
   getAllBooksAction,
   getBookByIdAction,
 } from "../../../store/slices/bookSlice";
-import { useState } from "react";
 import BookForm from "./BookForm";
+import { IconEye } from "@tabler/icons-react";
+import { IconTrash } from "@tabler/icons-react";
 
 const BookList = () => {
   const { books, isLoading } = useSelector((state) => state.book);
@@ -44,29 +41,31 @@ const BookList = () => {
     openModal();
   };
 
+  const getBooksData = async () => {
+    await dispatch(getAllBooksAction());
+  };
+
   const handleDelete = async (id) => {
     const res = await dispatch(deleteBookAction(id));
     await dispatch(getAllBooksAction());
 
-    console.log(res);
-
-    // if (res.status === 200) {
-    //   toast({
-    //     title: "Success",
-    //     description: "Book deleted successfully",
-    //     status: "success",
-    //     duration: 5000,
-    //     isClosable: true,
-    //   });
-    // } else {
-    //   toast({
-    //     title: "Error",
-    //     description: "Failed to delete book",
-    //     status: "error",
-    //     duration: 5000,
-    //     isClosable: true,
-    //   });
-    // }
+    if (res.payload.statusCode == 200) {
+      toast({
+        title: "Success",
+        description: "Book deleted successfully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to delete book",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   useEffect(() => {
@@ -103,63 +102,57 @@ const BookList = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {isLoading ? (
-              <Tr>
-                <Td colSpan="5">Loading...</Td>
+            {books?.map((book, idx) => (
+              <Tr key={book.id} alignItems="center" justifyContent="center">
+                <Td textAlign="center">{++idx}</Td>
+                <Td textAlign="center">{book.title}</Td>
+                <Td textAlign="center">{book.author}</Td>
+                <Td textAlign="center">{book.yearPublished}</Td>
+                <Td textAlign="center">
+                  {book.genre.map((genre, index) => (
+                    <Tag
+                      key={index}
+                      size="sm"
+                      colorScheme="gray"
+                      variant="solid"
+                      mr={2}
+                    >
+                      {genre}
+                    </Tag>
+                  ))}
+                </Td>
+                <Td textAlign="center">
+                  {book.isRead ? (
+                    <Badge variant="solid" colorScheme="success">
+                      Finished
+                    </Badge>
+                  ) : (
+                    <Badge variant="solid" colorScheme="error">
+                      Not Yet
+                    </Badge>
+                  )}
+                </Td>
+                <Td textAlign="center">
+                  <Button
+                    onClick={() => handleViewBook(book.id)}
+                    colorScheme="secondary"
+                    marginRight={3}
+                  >
+                    <IconEye /> View
+                  </Button>
+                  <Button
+                    onClick={() => handleDelete(book.id)}
+                    colorScheme="error"
+                  >
+                    <IconTrash /> Delete
+                  </Button>
+                </Td>
               </Tr>
-            ) : (
-              books?.map((book, idx) => (
-                <Tr key={book.id} alignItems="center" justifyContent="center">
-                  <Td textAlign="center">{++idx}</Td>
-                  <Td textAlign="center">{book.title}</Td>
-                  <Td textAlign="center">{book.author}</Td>
-                  <Td textAlign="center">{book.yearPublished}</Td>
-                  <Td textAlign="center">
-                    {book.genre.map((genre, index) => (
-                      <Tag
-                        key={index}
-                        size="sm"
-                        colorScheme="gray"
-                        variant="solid"
-                        mr={2}
-                      >
-                        {genre}
-                      </Tag>
-                    ))}
-                  </Td>
-                  <Td textAlign="center">
-                    {book.isRead ? (
-                      <Badge variant="solid" colorScheme="success">
-                        Finished
-                      </Badge>
-                    ) : (
-                      <Badge variant="solid" colorScheme="error">
-                        Not Yet
-                      </Badge>
-                    )}
-                  </Td>
-                  <Td textAlign="center">
-                    <Button
-                      onClick={() => handleViewBook(book.id)}
-                      colorScheme="secondary"
-                      marginRight={3}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      onClick={() => handleDelete(book.id)}
-                      colorScheme="error"
-                    >
-                      Delete
-                    </Button>
-                  </Td>
-                </Tr>
-              ))
-            )}
+            ))}
           </Tbody>
         </Table>
       </TableContainer>
-      <BookForm isOpen={isOpen} onClose={closeModal} />
+      <BookForm isOpen={isOpen} onClose={() => closeModal()} />
     </div>
   );
 };

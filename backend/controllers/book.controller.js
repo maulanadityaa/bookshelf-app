@@ -13,6 +13,7 @@ const createBook = async (req, res) => {
     await book.save();
 
     res.status(201).json({
+      statusCode: 201,
       message: "Book added successfully",
       data: formatBook(book),
     });
@@ -26,6 +27,7 @@ const getAllBooks = async (req, res) => {
   try {
     const books = await Book.find();
     res.status(200).json({
+      statusCode: 200,
       message: "Books fetched successfully",
       data: books.map(formatBook),
     });
@@ -47,6 +49,7 @@ const getBookById = async (req, res) => {
         .json({ message: `Book with id=${req.params.id} not found` });
 
     res.status(200).json({
+      statusCode: 200,
       message: "Book fetched successfully",
       data: formatBook(book),
     });
@@ -69,6 +72,7 @@ const updateBookById = async (req, res) => {
         .json({ message: `Book with id=${req.params.id} not found` });
 
     res.status(200).json({
+      statusCode: 200,
       message: "Book updated successfully",
       data: formatBook(book),
     });

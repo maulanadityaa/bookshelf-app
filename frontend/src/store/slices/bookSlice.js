@@ -20,24 +20,24 @@ export const getBookByIdAction = createAsyncThunk(
 export const createBookAction = createAsyncThunk(
   "book/createBook",
   async (book) => {
-    await bookService.createBook(book);
-    return await bookService.getAllBooks();
+    await bookService.getAllBooks();
+    return await bookService.createBook(book);
   }
 );
 
 export const updateBookAction = createAsyncThunk(
   "book/updateBook",
   async (book) => {
-    await bookService.updateBook(book);
-    return await bookService.getAllBooks();
+    await bookService.getAllBooks();
+    return await bookService.updateBook(book);
   }
 );
 
 export const deleteBookAction = createAsyncThunk(
   "book/deleteBook",
   async (id) => {
-    return await bookService.deleteBook(id);
-    // return await bookService.getAllBooks();
+    const result = await bookService.deleteBook(id);
+    return result;
   }
 );
 
@@ -59,7 +59,7 @@ const bookSlice = createSlice({
       state.isLoading = true;
     }),
       builder.addCase(getAllBooksAction.fulfilled, (state, { payload }) => {
-        state.books = payload;
+        state.books = payload.data;
         state.isLoading = false;
       }),
       builder.addCase(getAllBooksAction.rejected, (state) => {
@@ -69,7 +69,7 @@ const bookSlice = createSlice({
         state.isLoading = true;
       }),
       builder.addCase(getBookByIdAction.fulfilled, (state, { payload }) => {
-        state.book = payload;
+        state.book = payload.data;
         state.isLoading = false;
       }),
       builder.addCase(getBookByIdAction.rejected, (state) => {
@@ -79,7 +79,6 @@ const bookSlice = createSlice({
         state.isLoading = true;
       }),
       builder.addCase(createBookAction.fulfilled, (state, { payload }) => {
-        state.books = payload;
         state.isLoading = false;
       }),
       builder.addCase(createBookAction.rejected, (state) => {
@@ -89,7 +88,6 @@ const bookSlice = createSlice({
         state.isLoading = true;
       }),
       builder.addCase(updateBookAction.fulfilled, (state, { payload }) => {
-        state.books = payload;
         state.isLoading = false;
       }),
       builder.addCase(updateBookAction.rejected, (state) => {
@@ -99,7 +97,6 @@ const bookSlice = createSlice({
         state.isLoading = true;
       }),
       builder.addCase(deleteBookAction.fulfilled, (state, { payload }) => {
-        // state.books = payload;
         state.isLoading = false;
       }),
       builder.addCase(deleteBookAction.rejected, (state) => {

@@ -14,6 +14,8 @@ import {
   FormErrorMessage,
   useToast,
   Checkbox,
+  Box,
+  Image,
 } from "@chakra-ui/react";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
@@ -24,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import {
   createBookAction,
+  getAllBooksAction,
   updateBookAction,
 } from "../../../store/slices/bookSlice";
 import Select from "react-select";
@@ -104,7 +107,6 @@ const BookForm = ({ isOpen, onClose }) => {
   }, [book]);
 
   const handleUploadImage = async (image) => {
-    setLoading(true);
     const data = new FormData();
     data.append("image", image);
 
@@ -129,12 +131,12 @@ const BookForm = ({ isOpen, onClose }) => {
         duration: 5000,
         isClosable: true,
       });
-      setLoading(false);
       return;
     }
   };
 
   const onSubmit = async (data) => {
+    setLoading(true);
     if (pic != null) {
       data.image = await handleUploadImage(pic);
     } else {
@@ -144,9 +146,13 @@ const BookForm = ({ isOpen, onClose }) => {
     }
 
     if (book != null) {
-      data.imageUrl = data.image;
+      if (book.imageUrl === data.image) {
+        data.imageUrl = book.imageUrl;
+      } else {
+        data.imageUrl = data.image;
+      }
       const res = await dispatch(updateBookAction(data));
-      if (res.status == 200) {
+      if (res.payload.statusCode == 200) {
         toast({
           title: "Success",
           description: "Book updated successfully",
@@ -176,7 +182,7 @@ const BookForm = ({ isOpen, onClose }) => {
 
       try {
         const res = await dispatch(createBookAction(book));
-        if (res.status == 200) {
+        if (res.payload.statusCode == 201) {
           toast({
             title: "Success",
             description: "Book added successfully",
@@ -195,9 +201,13 @@ const BookForm = ({ isOpen, onClose }) => {
         });
       }
     }
+    await dispatch(getAllBooksAction());
     setOldGenre([]);
     setReaded(false);
+    setLoading(false);
+
     reset();
+    onClose();
   };
   return (
     <>
@@ -207,6 +217,11 @@ const BookForm = ({ isOpen, onClose }) => {
           <ModalHeader>Book Form</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
+            {book && (
+              <Box>
+                <Image src={book.imageUrl} alt="Book Cover" />
+              </Box>
+            )}
             <FormControl isInvalid={errors.title} mt={3}>
               <FormLabel>Title</FormLabel>
               <Input
@@ -303,17 +318,16 @@ const BookForm = ({ isOpen, onClose }) => {
                 {errors.image && errors.image.message}
               </FormErrorMessage>
             </FormControl>
-            <FormControl isInvalid={errors.isRead} mt={3}>
+            <FormControl isInvalid={errors.read} mt={3}>
               <Checkbox
                 colorScheme="blue"
                 {...register("read")}
-                // isChecked={readed}
-                defaultValue={readed}
+                defaultChecked={readed}
               >
                 Read
               </Checkbox>
               <FormErrorMessage>
-                {errors.isRead && errors.isRead.message}
+                {errors.read && errors.read.message}
               </FormErrorMessage>
             </FormControl>
           </ModalBody>
