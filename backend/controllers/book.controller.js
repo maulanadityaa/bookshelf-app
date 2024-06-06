@@ -88,6 +88,7 @@ const deleteBookById = async (req, res) => {
         .json({ message: `Book with id=${req.params.id} not found` });
 
     res.status(200).json({
+      statusCode: 200,
       message: "Book deleted successfully",
     });
   } catch (err) {
