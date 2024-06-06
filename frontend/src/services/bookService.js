@@ -3,7 +3,6 @@ import bookAxiosInstance from "../api/bookAxiosInstance";
 function BookService() {
   const getAllBooks = async () => {
     const res = await bookAxiosInstance.get("/books");
-    console.log("Get All service", res.data);
 
     if (res.status !== 200) {
       console.log(res);

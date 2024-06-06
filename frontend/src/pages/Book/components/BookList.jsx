@@ -10,6 +10,13 @@ import {
   Thead,
   Tr,
   useToast,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  useDisclosure,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,19 +28,24 @@ import {
 import BookForm from "./BookForm";
 import { IconEye } from "@tabler/icons-react";
 import { IconTrash } from "@tabler/icons-react";
+import { useRef } from "react";
+import LoadingAnimation from "../../../shared/hoc/LoadingAnimation";
 
 const BookList = () => {
   const { books, isLoading } = useSelector((state) => state.book);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
   const dispatch = useDispatch();
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef();
 
   const openModal = () => {
-    setIsOpen(true);
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setIsOpen(false);
+    setIsModalOpen(false);
   };
 
   const handleViewBook = async (id) => {
@@ -41,8 +53,9 @@ const BookList = () => {
     openModal();
   };
 
-  const getBooksData = async () => {
-    await dispatch(getAllBooksAction());
+  const handleDeleteClick = (book) => {
+    setSelectedBook(book);
+    onOpen();
   };
 
   const handleDelete = async (id) => {
@@ -66,11 +79,16 @@ const BookList = () => {
         isClosable: true,
       });
     }
+    onClose();
   };
 
   useEffect(() => {
     dispatch(getAllBooksAction());
   }, [dispatch]);
+
+  if (isLoading) {
+    return <LoadingAnimation />;
+  }
 
   return (
     <div>
@@ -141,7 +159,7 @@ const BookList = () => {
                     <IconEye /> View
                   </Button>
                   <Button
-                    onClick={() => handleDelete(book.id)}
+                    onClick={() => handleDeleteClick(book)}
                     colorScheme="error"
                   >
                     <IconTrash /> Delete
@@ -152,7 +170,38 @@ const BookList = () => {
           </Tbody>
         </Table>
       </TableContainer>
-      <BookForm isOpen={isOpen} onClose={() => closeModal()} />
+      <BookForm isOpen={isModalOpen} onClose={() => closeModal()} />
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Book
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete "{selectedBook?.title}"? This
+              action cannot be undone.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => handleDelete(selectedBook.id)}
+                ml={3}
+              >
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </div>
   );
 };

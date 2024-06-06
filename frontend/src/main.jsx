@@ -5,7 +5,6 @@ import App from "./App.jsx";
 import { Provider } from "react-redux";
 import store from "./store/store.js";
 import { colors } from "./theme/token.js";
-// import "./index.css";
 
 const theme = extendTheme({ colors });
 

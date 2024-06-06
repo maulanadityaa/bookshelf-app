@@ -83,7 +83,7 @@ const BookForm = ({ isOpen, onClose }) => {
     { value: "Mystery", label: "Mystery" },
   ];
 
-  const { book, isLoading } = useSelector((state) => state.book);
+  const { book } = useSelector((state) => state.book);
   const [loading, setLoading] = useState(false);
   const [pic, setPic] = useState(null);
   const [oldGenre, setOldGenre] = useState([]);
@@ -91,7 +91,7 @@ const BookForm = ({ isOpen, onClose }) => {
 
   const dispatch = useDispatch();
   const toast = useToast();
-
+  console.log(book);
   useEffect(() => {
     if (book) {
       setValue("id", book.id);
@@ -104,6 +104,10 @@ const BookForm = ({ isOpen, onClose }) => {
       setOldGenre(book.genre);
       setReaded(book.isRead);
     }
+
+    return () => {
+      reset();
+    };
   }, [book]);
 
   const handleUploadImage = async (image) => {
@@ -346,7 +350,6 @@ const BookForm = ({ isOpen, onClose }) => {
                 reset();
                 onClose();
               }}
-              type="reset"
             >
               Cancel
             </Button>
