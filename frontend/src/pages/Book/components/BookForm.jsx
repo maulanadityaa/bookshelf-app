@@ -1,11 +1,10 @@
 import {
-  Box,
   Button,
   Checkbox,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Image,
   Input,
   Modal,
   ModalBody,
@@ -23,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import * as yup from "yup";
 import bookAxiosInstance from "../../../api/bookAxiosInstance";
+import ResizedImage from "../../../shared/hoc/ResizedImage";
 import {
   createBookAction,
   getAllBooksAction,
@@ -139,14 +139,6 @@ const BookForm = ({ isOpen, onClose }) => {
   const onSubmit = async (data) => {
     setLoading(true);
 
-    // if (pic != null) {
-    //   data.image = await handleUploadImage(pic);
-    // } else {
-    //   setValue("image", null);
-    //   data.image =
-    //     "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-    // }
-
     if (book != null) {
       try {
         if (pic != null) {
@@ -235,9 +227,9 @@ const BookForm = ({ isOpen, onClose }) => {
           <ModalCloseButton />
           <ModalBody pb={6}>
             {book && (
-              <Box>
-                <Image src={book.imageUrl} alt="Book Cover" />
-              </Box>
+              <Flex justify="center" my={2}>
+                <ResizedImage src={book.imageUrl} alt="Book Cover" />
+              </Flex>
             )}
             <FormControl isInvalid={errors.title} mt={3}>
               <FormLabel>Title</FormLabel>
