@@ -1,4 +1,10 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Badge,
   Button,
   Table,
@@ -9,27 +15,20 @@ import {
   Th,
   Thead,
   Tr,
-  useToast,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import { IconEye, IconTrash } from "@tabler/icons-react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import LoadingAnimation from "../../../shared/hoc/LoadingAnimation";
 import {
   deleteBookAction,
   getAllBooksAction,
-  getBookByIdAction,
+  getBook,
+  removeCurrentBook,
 } from "../../../store/slices/bookSlice";
 import BookForm from "./BookForm";
-import { IconEye } from "@tabler/icons-react";
-import { IconTrash } from "@tabler/icons-react";
-import { useRef } from "react";
-import LoadingAnimation from "../../../shared/hoc/LoadingAnimation";
 
 const BookList = () => {
   const { books, isLoading } = useSelector((state) => state.book);
@@ -46,10 +45,11 @@ const BookList = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    dispatch(removeCurrentBook());
   };
 
-  const handleViewBook = async (id) => {
-    await dispatch(getBookByIdAction(id));
+  const handleViewBook = async (book) => {
+    await dispatch(getBook(book));
     openModal();
   };
 
@@ -59,27 +59,29 @@ const BookList = () => {
   };
 
   const handleDelete = async (id) => {
-    const res = await dispatch(deleteBookAction(id));
-    await dispatch(getAllBooksAction());
-
-    if (res.payload.statusCode == 200) {
+    try {
+      const res = await dispatch(deleteBookAction(id));
       toast({
         title: "Success",
-        description: "Book deleted successfully",
+        description: res.payload.message,
         status: "success",
         duration: 5000,
         isClosable: true,
+        position: "top",
       });
-    } else {
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to delete book",
+        description: error.message,
         status: "error",
         duration: 5000,
         isClosable: true,
+        position: "top",
       });
+    } finally {
+      await dispatch(getAllBooksAction());
+      onClose();
     }
-    onClose();
   };
 
   useEffect(() => {
@@ -152,7 +154,7 @@ const BookList = () => {
                 </Td>
                 <Td textAlign="center">
                   <Button
-                    onClick={() => handleViewBook(book.id)}
+                    onClick={() => handleViewBook(book)}
                     colorScheme="secondary"
                     marginRight={3}
                   >

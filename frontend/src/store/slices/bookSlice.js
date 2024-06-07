@@ -10,13 +10,6 @@ export const getAllBooksAction = createAsyncThunk(
   }
 );
 
-export const getBookByIdAction = createAsyncThunk(
-  "book/getBookById",
-  async (id) => {
-    return await bookService.getBookById(id);
-  }
-);
-
 export const createBookAction = createAsyncThunk(
   "book/createBook",
   async (book) => {
@@ -50,8 +43,11 @@ const bookSlice = createSlice({
     message: "",
   },
   reducers: {
-    selectedBook: (state, { payload }) => {
+    getBook: (state, { payload }) => {
       state.book = payload;
+    },
+    removeCurrentBook: (state, { payload }) => {
+      state.book = null;
     },
   },
   extraReducers: (builder) => {
@@ -63,16 +59,6 @@ const bookSlice = createSlice({
         state.isLoading = false;
       }),
       builder.addCase(getAllBooksAction.rejected, (state) => {
-        state.isLoading = false;
-      }),
-      builder.addCase(getBookByIdAction.pending, (state) => {
-        state.isLoading = true;
-      }),
-      builder.addCase(getBookByIdAction.fulfilled, (state, { payload }) => {
-        state.book = payload.data;
-        state.isLoading = false;
-      }),
-      builder.addCase(getBookByIdAction.rejected, (state) => {
         state.isLoading = false;
       }),
       builder.addCase(createBookAction.pending, (state) => {
@@ -105,6 +91,6 @@ const bookSlice = createSlice({
   },
 });
 
-export const { selectedBook } = bookSlice.actions;
+export const { getBook, removeCurrentBook } = bookSlice.actions;
 
 export default bookSlice;

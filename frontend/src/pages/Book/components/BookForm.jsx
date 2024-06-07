@@ -1,37 +1,33 @@
-import React from "react";
 import {
+  Box,
+  Button,
+  Checkbox,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Image,
+  Input,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   useToast,
-  Checkbox,
-  Box,
-  Image,
 } from "@chakra-ui/react";
-import * as yup from "yup";
-import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import Select from "react-select";
+import * as yup from "yup";
+import bookAxiosInstance from "../../../api/bookAxiosInstance";
 import {
   createBookAction,
   getAllBooksAction,
   updateBookAction,
 } from "../../../store/slices/bookSlice";
-import Select from "react-select";
-import bookAxiosInstance from "../../../api/bookAxiosInstance";
-import { useState } from "react";
 
 const schema = yup.object().shape({
   title: yup.string().required("Title is required"),
@@ -91,7 +87,7 @@ const BookForm = ({ isOpen, onClose }) => {
 
   const dispatch = useDispatch();
   const toast = useToast();
-  console.log(book);
+
   useEffect(() => {
     if (book) {
       setValue("id", book.id);
@@ -114,26 +110,27 @@ const BookForm = ({ isOpen, onClose }) => {
     const data = new FormData();
     data.append("image", image);
 
-    const res = await bookAxiosInstance.post("/upload-cover", data);
-
-    if (res.status == 200) {
+    try {
+      const res = await bookAxiosInstance.post("/upload-cover", data);
       toast({
         title: "Success",
         description: "Profile picture uploaded",
         status: "success",
         duration: 5000,
         isClosable: true,
+        position: "top",
       });
       setValue("image", res.data.imageUrl);
       setLoading(false);
       return res.data.imageUrl;
-    } else {
+    } catch (error) {
       toast({
         title: "Error",
         description: "Please upload a valid image file",
         status: "error",
         duration: 5000,
         isClosable: true,
+        position: "top",
       });
       return;
     }
@@ -141,40 +138,53 @@ const BookForm = ({ isOpen, onClose }) => {
 
   const onSubmit = async (data) => {
     setLoading(true);
-    if (pic != null) {
-      data.image = await handleUploadImage(pic);
-    } else {
-      setValue("image", null);
-      data.image =
-        "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-    }
+
+    // if (pic != null) {
+    //   data.image = await handleUploadImage(pic);
+    // } else {
+    //   setValue("image", null);
+    //   data.image =
+    //     "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+    // }
 
     if (book != null) {
-      if (book.imageUrl === data.image) {
-        data.imageUrl = book.imageUrl;
-      } else {
-        data.imageUrl = data.image;
-      }
-      const res = await dispatch(updateBookAction(data));
-      if (res.payload.statusCode == 200) {
+      try {
+        if (pic != null) {
+          data.image = await handleUploadImage(pic);
+        } else {
+          data.image = book.imageUrl;
+        }
+
+        const res = await dispatch(updateBookAction(data));
         toast({
           title: "Success",
-          description: "Book updated successfully",
+          description: res.payload.message,
           status: "success",
           duration: 5000,
           isClosable: true,
+          position: "top",
         });
-      } else {
+      } catch (error) {
         toast({
           title: "Error",
           description: "Failed to update book",
           status: "error",
           duration: 5000,
           isClosable: true,
+          position: "top",
         });
+
+        return;
       }
       reset();
     } else {
+      if (pic != null) {
+        data.image = await handleUploadImage(pic);
+      } else {
+        data.image =
+          "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+      }
+
       const book = {
         title: data.title,
         author: data.author,
@@ -186,15 +196,15 @@ const BookForm = ({ isOpen, onClose }) => {
 
       try {
         const res = await dispatch(createBookAction(book));
-        if (res.payload.statusCode == 201) {
-          toast({
-            title: "Success",
-            description: "Book added successfully",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-          });
-        }
+
+        toast({
+          title: "Success",
+          description: res.payload.message,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
       } catch (e) {
         toast({
           title: "Error",
@@ -202,7 +212,10 @@ const BookForm = ({ isOpen, onClose }) => {
           status: "error",
           duration: 5000,
           isClosable: true,
+          position: "top",
         });
+
+        return;
       }
     }
     await dispatch(getAllBooksAction());

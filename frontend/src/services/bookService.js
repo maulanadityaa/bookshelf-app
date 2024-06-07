@@ -12,17 +12,6 @@ function BookService() {
     return res.data;
   };
 
-  const getBookById = async (id) => {
-    const res = await bookAxiosInstance.get("/books/" + id);
-
-    if (res.status !== 200) {
-      console.log(res);
-      throw new Error("Couldn't get book by id");
-    }
-
-    return res.data;
-  };
-
   const createBook = async (book) => {
     const res = await bookAxiosInstance.post("/books", book);
 
@@ -56,7 +45,7 @@ function BookService() {
     return res.data;
   };
 
-  return { getAllBooks, deleteBook, createBook, updateBook, getBookById };
+  return { getAllBooks, deleteBook, createBook, updateBook };
 }
 
 export default BookService;
