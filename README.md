@@ -68,6 +68,18 @@ This is an example of how to list things you need to use the software and how to
 
 ## Screenshots
 
+#### Book List
+
+![book-list](./book-list.png)
+
+#### Add Book
+
+![book-add](./book-add.png)
+
+#### View Book
+
+![book-view](./book-view.png)
+
 <!-- CONTACT -->
 
 ## Contact

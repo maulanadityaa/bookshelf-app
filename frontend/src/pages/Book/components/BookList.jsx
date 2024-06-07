@@ -6,6 +6,7 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   Badge,
+  Box,
   Button,
   Table,
   TableContainer,
@@ -43,9 +44,9 @@ const BookList = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = async () => {
+    await dispatch(removeCurrentBook());
     setIsModalOpen(false);
-    dispatch(removeCurrentBook());
   };
 
   const handleViewBook = async (book) => {
@@ -93,7 +94,7 @@ const BookList = () => {
   }
 
   return (
-    <div>
+    <Box width="100%">
       <TableContainer py={4}>
         <Table variant="simple">
           <Thead>
@@ -125,10 +126,20 @@ const BookList = () => {
             {books?.map((book, idx) => (
               <Tr key={book.id} alignItems="center" justifyContent="center">
                 <Td textAlign="center">{++idx}</Td>
-                <Td textAlign="center">{book.title}</Td>
+                <Td
+                  textAlign="center"
+                  whiteSpace="normal"
+                  wordBreak="break-word"
+                >
+                  {book.title}
+                </Td>
                 <Td textAlign="center">{book.author}</Td>
                 <Td textAlign="center">{book.yearPublished}</Td>
-                <Td textAlign="center">
+                <Td
+                  textAlign="center"
+                  whiteSpace="normal"
+                  wordBreak="break-word"
+                >
                   {book.genre.map((genre, index) => (
                     <Tag
                       key={index}
@@ -136,6 +147,7 @@ const BookList = () => {
                       colorScheme="gray"
                       variant="solid"
                       mr={2}
+                      mb={1}
                     >
                       {genre}
                     </Tag>
@@ -204,7 +216,7 @@ const BookList = () => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-    </div>
+    </Box>
   );
 };
 

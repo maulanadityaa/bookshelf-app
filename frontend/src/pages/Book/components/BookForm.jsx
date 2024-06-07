@@ -112,14 +112,7 @@ const BookForm = ({ isOpen, onClose }) => {
 
     try {
       const res = await bookAxiosInstance.post("/upload-cover", data);
-      toast({
-        title: "Success",
-        description: "Profile picture uploaded",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      });
+
       setValue("image", res.data.imageUrl);
       setLoading(false);
       return res.data.imageUrl;
@@ -132,7 +125,7 @@ const BookForm = ({ isOpen, onClose }) => {
         isClosable: true,
         position: "top",
       });
-      return;
+      return null;
     }
   };
 
@@ -142,12 +135,20 @@ const BookForm = ({ isOpen, onClose }) => {
     if (book != null) {
       try {
         if (pic != null) {
-          data.image = await handleUploadImage(pic);
+          const uploadImage = await handleUploadImage(pic);
+          if (uploadImage != null) {
+            data.image = uploadImage;
+          } else {
+            return;
+          }
         } else {
           data.image = book.imageUrl;
         }
 
         const res = await dispatch(updateBookAction(data));
+
+        onClose();
+
         toast({
           title: "Success",
           description: res.payload.message,
@@ -156,6 +157,13 @@ const BookForm = ({ isOpen, onClose }) => {
           isClosable: true,
           position: "top",
         });
+
+        await dispatch(getAllBooksAction());
+        setOldGenre([]);
+        setReaded(false);
+        setLoading(false);
+
+        reset();
       } catch (error) {
         toast({
           title: "Error",
@@ -168,7 +176,6 @@ const BookForm = ({ isOpen, onClose }) => {
 
         return;
       }
-      reset();
     } else {
       if (pic != null) {
         data.image = await handleUploadImage(pic);
@@ -189,6 +196,8 @@ const BookForm = ({ isOpen, onClose }) => {
       try {
         const res = await dispatch(createBookAction(book));
 
+        onClose();
+
         toast({
           title: "Success",
           description: res.payload.message,
@@ -197,6 +206,12 @@ const BookForm = ({ isOpen, onClose }) => {
           isClosable: true,
           position: "top",
         });
+
+        await dispatch(getAllBooksAction());
+        setOldGenre([]);
+        setReaded(false);
+        setLoading(false);
+        reset();
       } catch (e) {
         toast({
           title: "Error",
@@ -210,13 +225,6 @@ const BookForm = ({ isOpen, onClose }) => {
         return;
       }
     }
-    await dispatch(getAllBooksAction());
-    setOldGenre([]);
-    setReaded(false);
-    setLoading(false);
-
-    reset();
-    onClose();
   };
   return (
     <>
